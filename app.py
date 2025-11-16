@@ -3,22 +3,18 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 import os
 
-TOKEN = os.getenv("BOT_TOKEN")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # ustawisz później w Render
-
 app = Flask(__name__)
 
-# Tworzymy aplikację Telegram
-telegram_app = Application.builder().token(TOKEN).build()
+TOKEN = os.getenv("BOT_TOKEN")
 
-# ---- HANDLERY ----
+# Handlery Telegrama
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Cześć! Bot jest online i działa poprawnie! 😊")
 
+# Tworzenie aplikacji Telegrama
+telegram_app = Application.builder().token(TOKEN).build()
 telegram_app.add_handler(CommandHandler("start", start))
 
-
-# ---- FLASK ROUTES ----
 @app.get("/")
 def home():
     return "Bot działa!"
@@ -30,11 +26,7 @@ def webhook():
     telegram_app.update_queue.put_nowait(update)
     return "OK"
 
-
-# ---- URUCHOMIENIE ----
 if __name__ == "__main__":
-    # 🔥 uruchamiamy serwer Flask (Render tego potrzebuje)
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
-    )
+    # Render wymaga aplikacji webowej na porcie PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
